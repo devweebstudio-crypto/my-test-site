@@ -27,7 +27,7 @@
 document.getElementById("form").onsubmit = e => {
   e.preventDefault();
 
-  fetch("APPS_SCRIPT_URL_HERE", {
+  fetch("https://script.google.com/macros/s/AKfycbx_psYqbDnvuB7no_veMGlkDEiTR885_2rIevGTO4H7qo9tHYSvDp_XZTuFzApe2hs_/exec", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

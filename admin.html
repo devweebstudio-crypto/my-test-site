@@ -1,46 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin Panel</title>
+  <meta charset="UTF-8">
+  <title>Admin Panel – Update Website</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 520px;
+      margin: 40px auto;
+      padding: 10px;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 15px;
+      padding: 10px;
+      font-weight: bold;
+      border-radius: 4px;
+      white-space: pre-line;
+    }
+
+    .loading {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+  </style>
 </head>
 <body>
 
-<h2>Update Website</h2>
+  <h2>Admin – Publish Product</h2>
 
-<form id="form">
-  Image URL:<br>
-  <input id="image"><br><br>
+  <form id="adminForm">
+    <label>Image URL</label>
+    <input id="image" required placeholder="https://...">
 
-  Title:<br>
-  <input id="title"><br><br>
+    <label>Title</label>
+    <input id="title" required placeholder="Product title">
 
-  Price:<br>
-  <input id="price"><br><br>
+    <label>Price</label>
+    <input id="price" required placeholder="5000">
 
-  Description:<br>
-  <textarea id="desc"></textarea><br><br>
+    <label>Description</label>
+    <textarea id="desc" rows="4" required></textarea>
 
-  <button>Publish</button>
-</form>
+    <button id="publishBtn">Publish</button>
+  </form>
 
-<script>
-document.getElementById("form").onsubmit = e => {
-  e.preventDefault();
+  <div id="statusBox" class="status"></div>
 
-  fetch("https://script.google.com/macros/s/AKfycbx_psYqbDnvuB7no_veMGlkDEiTR885_2rIevGTO4H7qo9tHYSvDp_XZTuFzApe2hs_/exec", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      image: image.value,
-      title: title.value,
-      price: price.value,
-      desc: desc.value
-    })
-  })
-  .then(r => r.text())
-  .then(alert);
-};
-</script>
+  <script>
+    const SCRIPT_URL =
+      "https://script.google.com/macros/s/AKfycbwCQYDJq6CLhzDsLfoUG_f14Gj-Sm4QJdgl3fZ0lnTdHjTQnqqQVZKBpeHboblbceX_/exec";
+
+    const form = document.getElementById("adminForm");
+    const statusBox = document.getElementById("statusBox");
+    const btn = document.getElementById("publishBtn");
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+
+      statusBox.className = "status loading";
+      statusBox.textContent = "⏳ Publishing...\nPlease wait";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            image: image.value.trim(),
+            title: title.value.trim(),
+            price: price.value.trim(),
+            desc: desc.value.trim()
+          })
+        });
+
+        if (!res.ok) {
+          throw new Error("Server returned error");
+        }
+
+        const text = await res.text();
+
+        statusBox.className = "status success";
+        statusBox.textContent = "✅ SUCCESS\n" + text;
+
+        form.reset();
+
+      } catch (err) {
+        statusBox.className = "status error";
+        statusBox.textContent =
+          "❌ FAILED TO PUBLISH\n\n" +
+          "Possible reasons:\n" +
+          "1. Apps Script access is not 'Anyone'\n" +
+          "2. Script not redeployed\n" +
+          "3. GitHub token / repo issue\n\n" +
+          "Error: " + err.message;
+      }
+
+      btn.disabled = false;
+    };
+  </script>
 
 </body>
 </html>

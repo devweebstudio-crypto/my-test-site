@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+</head>
+<body>
+
+<h2>Update Website</h2>
+
+<form id="form">
+  Image URL:<br>
+  <input id="image"><br><br>
+
+  Title:<br>
+  <input id="title"><br><br>
+
+  Price:<br>
+  <input id="price"><br><br>
+
+  Description:<br>
+  <textarea id="desc"></textarea><br><br>
+
+  <button>Publish</button>
+</form>
+
+<script>
+document.getElementById("form").onsubmit = e => {
+  e.preventDefault();
+
+  fetch("APPS_SCRIPT_URL_HERE", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      image: image.value,
+      title: title.value,
+      price: price.value,
+      desc: desc.value
+    })
+  })
+  .then(r => r.text())
+  .then(alert);
+};
+</script>
+
+</body>
+</html>
